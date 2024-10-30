@@ -4,12 +4,12 @@ import numpy as np
 import torch
 import torch.optim as optim
 
-from models.autoencoder import Autoencoder
+from models.autoencoder import Autoencoder, EnhancedAutoencoder
 
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 628
+speckle_num = 156
 size = 28
 mask_patterns = np.load(f"data/speckle/time{speckle_num}_{size}x{size}.npz")[
     "arr_0"
@@ -31,17 +31,17 @@ else:
     print("Using CPU")
 
 
-def calculate_Y(X, S, speckle_num=speckle_num):
+def calculate_Y(X, S, time_length):
     X_flat = X.view(-1).float()
-    S = S.reshape(speckle_num, -1).float()
+    S = S.reshape(time_length, -1).float()
     Y = torch.matmul(S, X_flat)
     Y = Y / torch.max(Y)
     return Y
 
 
-def custom_loss(Y, X_prime, S, speckle_num=speckle_num):
+def custom_loss(Y, X_prime, S, time_length):
     X_prime_flat = X_prime.view(-1)  # X'をフラット化
-    S = S.reshape(speckle_num, -1).float()
+    S = S.reshape(time_length, -1).float()
     SX_prime = torch.matmul(S, X_prime_flat)
     SX_prime = SX_prime / torch.max(SX_prime)
     loss = torch.mean((Y - SX_prime) ** 2)
@@ -53,7 +53,7 @@ def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
     image_data = image_data.to(device)
     mask_patterns = torch.tensor(mask_patterns) / np.max(mask_patterns)
     mask_patterns = mask_patterns.to(device)
-    Y = calculate_Y(image_data, mask_patterns)
+    Y = calculate_Y(image_data, mask_patterns, time_length=speckle_num)
     # gen1 = generate_mask_pattern(
     #     time_length=156, num_x_pixel_true=28, num_y_pixel_true=28
     # )
@@ -62,12 +62,15 @@ def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
     # print(mask_patterns.shape)
     # print(max(image_data))
     # print(device)
-    print(type(image_data))
-    print(mask_patterns.shape)
-    print("Y shape: ", Y.shape)
-    model = Autoencoder(input_dim=speckle_num, hidden_dim=128, output_dim=784).to(
-        device
-    )
+    # print(type(image_data))
+    # print(mask_patterns.shape)
+    # print("Y shape: ", Y.shape)
+    model = EnhancedAutoencoder(
+        input_dim=speckle_num, hidden_dim=128, output_dim=784
+    ).to(device)
+    # model = Autoencoder(input_dim=speckle_num, hidden_dim=128, output_dim=784).to(
+    #     device
+    # )
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
     # print(model)
     # トレーニングループ
@@ -78,7 +81,9 @@ def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
         optimizer.zero_grad()
 
         X_prime = model(Y)  # Yから再構成画像X'を生成
-        loss = custom_loss(Y.squeeze(0), X_prime, mask_patterns)  # 損失を計算
+        loss = custom_loss(
+            Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num
+        )  # 損失を計算
 
         loss.backward()
         optimizer.step()
