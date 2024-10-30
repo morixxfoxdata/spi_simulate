@@ -34,9 +34,11 @@ num_repeat = int(dt_w / dt_samp)  # number of repeat
 # Fixed parameters
 ######################################
 def generate_mask_pattern(
-    time_length=10, num_x_pixel=200, num_y_pixel=200
+    time_length=10, num_x_pixel_true=200, num_y_pixel_true=200
 ) -> np.ndarray:  # (time_length, num_x_pixel, num_y_pixel)
     ####### Spatial sampling ###
+    num_x_pixel = num_x_pixel_true + 1
+    num_y_pixel = num_y_pixel_true + 1
     dx = width / num_x_pixel
     dy = width / num_y_pixel
     x = np.arange(1, num_x_pixel + 1) * dx
@@ -108,12 +110,16 @@ def generate_mask_pattern(
             mask_speckles[n, :, :] += aa[m] * psi[m, :, :] * phase_modulated_input[m, n]
 
     mask_patterns = np.abs(mask_speckles) ** 2
-    mask_patterns = mask_patterns.astype(float)
-    mask_patterns_normalized = mask_patterns / np.mean(mask_patterns)
+    # oversampling
+    # print(mask_patterns.shape)
+    mask_patterns_cropped = mask_patterns.astype(float)[
+        :, :num_x_pixel_true, :num_y_pixel_true
+    ]
+    mask_patterns_normalized = mask_patterns_cropped / np.mean(mask_patterns_cropped)
 
     # save mask_patterns as npz
     np.savez(
-        f"data/speckle/time{time_length}_{num_x_pixel}x{num_y_pixel}.npz",
+        f"data/speckle/time{time_length}_{num_x_pixel_true}x{num_y_pixel_true}.npz",
         mask_patterns_normalized,
     )
     return mask_patterns_normalized
