@@ -1,12 +1,13 @@
-from utils.data_process import npz_data_mnist
+# from utils.speckle_generate import generate_mask_pattern
 
 
 def main():
     # gen1 = generate_mask_pattern(
-    #     time_length=10, num_x_pixel_true=256, num_y_pixel_true=256
+    #     time_length=156, num_x_pixel_true=28, num_y_pixel_true=28
     # )
     # print(gen1.shape)
-    npz_data_mnist(9)
+    # npz_data_mnist(9)
+    print("Hello World!")
 
 
 if __name__ == "__main__":
