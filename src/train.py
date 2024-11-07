@@ -5,12 +5,16 @@ import torch
 import torch.optim as optim
 
 from models.autoencoder import Autoencoder, EnhancedAutoencoder
+from utils.speckle_generate import generate_mask_pattern
 
 # ====================
 # numpy data loaded
 # ====================
 speckle_num = 156
 size = 28
+generate_mask_pattern(
+    time_length=speckle_num, num_x_pixel_true=size, num_y_pixel_true=size
+)
 mask_patterns = np.load(f"data/speckle/time{speckle_num}_{size}x{size}.npz")[
     "arr_0"
 ].astype(np.float32)
@@ -107,4 +111,5 @@ def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
 
 
 if __name__ == "__main__":
-    main(device, mask_patterns, image_data)
+    # main(device, mask_patterns, image_data)
+    print("Hello world!")
