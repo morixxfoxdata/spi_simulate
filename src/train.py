@@ -10,16 +10,16 @@ from utils.speckle_generate import generate_mask_pattern
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 156
-size = 28
+speckle_num = 128
+size = 8
 generate_mask_pattern(
     time_length=speckle_num, num_x_pixel_true=size, num_y_pixel_true=size
 )
 mask_patterns = np.load(f"data/speckle/time{speckle_num}_{size}x{size}.npz")[
     "arr_0"
 ].astype(np.float32)
-model = Autoencoder(input_dim=speckle_num, hidden_dim=128, output_dim=784)
-image_data = np.load("data/processed/mnist/mnist_9.npz")["arr_0"].astype(np.float32)
+model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
+image_data = np.load("data/processed/mnist/mnist_8x8_0.npz")["arr_0"].astype(np.float32)
 
 # ====================
 # Device setting
@@ -53,7 +53,7 @@ def custom_loss(Y, X_prime, S, time_length):
 
 
 def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
-    image_data = torch.tensor(image_data) / 255.0
+    image_data = torch.tensor(image_data)
     image_data = image_data.to(device)
     mask_patterns = torch.tensor(mask_patterns) / np.max(mask_patterns)
     mask_patterns = mask_patterns.to(device)
@@ -69,9 +69,9 @@ def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
     # print(type(image_data))
     # print(mask_patterns.shape)
     # print("Y shape: ", Y.shape)
-    model = EnhancedAutoencoder(
-        input_dim=speckle_num, hidden_dim=128, output_dim=784
-    ).to(device)
+    model = EnhancedAutoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=64).to(
+        device
+    )
     # model = Autoencoder(input_dim=speckle_num, hidden_dim=128, output_dim=784).to(
     #     device
     # )
@@ -111,5 +111,5 @@ def main(device=device, mask_patterns=mask_patterns, image_data=image_data):
 
 
 if __name__ == "__main__":
-    # main(device, mask_patterns, image_data)
-    print("Hello world!")
+    main(device, mask_patterns, image_data)
+    # print("Hello world!")

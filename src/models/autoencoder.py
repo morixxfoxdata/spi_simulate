@@ -25,7 +25,7 @@ class Decoder(nn.Module):
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.sigmoid(self.fc2(x))  # 0〜1の範囲に正規化
-        x = x.view(-1, 28, 28)  # 出力を256x256画像の形状に変換
+        x = x.view(-1, 8, 8)  # 出力を256x256画像の形状に変換
         return x
 
 
@@ -79,7 +79,7 @@ class EnhancedDecoder(nn.Module):
         x = torch.relu(self.layer_norm2(self.fc2(x)))
         x = torch.relu(self.layer_norm3(self.fc3(x)))
         x = torch.sigmoid(self.fc4(x))  # 0〜1の範囲に正規化
-        x = x.view(-1, 28, 28)  # 出力を256x256画像の形状に変換
+        x = x.view(-1, 8, 8)  # 出力を256x256画像の形状に変換
         return x
 
 
