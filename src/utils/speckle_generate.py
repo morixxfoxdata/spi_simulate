@@ -1,6 +1,9 @@
 import numpy as np
 from tqdm import tqdm
 
+# グローバルでシードを設定
+np.random.seed(42)
+
 #####################################
 # Set parameters
 #####################################
