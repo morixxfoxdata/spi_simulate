@@ -15,7 +15,7 @@ class MultiscaleSpeckleNet(nn.Module):
         self.up3 = self.up_sample(128, 64)
         self.up2 = self.up_sample(128, 32)
         self.up1 = self.up_sample(64, 16)
-        self.activation = nn.Tanh()
+        self.activation = nn.Sigmoid()
         # self.activation = BinaryActivation()
         # self.activation = BinarySTEActivation()
         # self.activation = SmoothBinaryActivation()
@@ -25,16 +25,16 @@ class MultiscaleSpeckleNet(nn.Module):
 
         # Final fully connected layers
         self.fc = nn.Sequential(
-            nn.Linear(16, 512),  # 入力次元を16に変更
+            nn.Linear(16, 1024),  # 入力次元を16に変更
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(512, 256),
+            nn.Linear(1024, 800),
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(256, 64),
-            # nn.Tanh()
+            nn.Linear(800, 784),
+            # nn.Sigmoid(),
         )
 
     def down_sample(self, in_channels, out_channels):
@@ -89,6 +89,6 @@ class MultiscaleSpeckleNet(nn.Module):
 
 if __name__ == "__main__":
     model = MultiscaleSpeckleNet()
-    Y = torch.randn(1, 400)
+    Y = torch.randn(1, 1200)
     res = model(Y)
     print(res.shape)

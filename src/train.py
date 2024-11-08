@@ -8,6 +8,8 @@ import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 
 from models.unet import MultiscaleSpeckleNet
+
+# from models.autoencoder import Autoencoder
 from utils.speckle_generate import generate_mask_pattern
 
 # PATH = "/home1/komori/spi_simulate/"
@@ -15,8 +17,8 @@ PATH = "/Users/komori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 32
-size = 8
+speckle_num = 156
+size = 28
 EPOCHS = 10000
 USE_DATA = "mnist_0"
 COMPRESSIVE_RATIO = speckle_num / size**2
