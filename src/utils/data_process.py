@@ -25,5 +25,22 @@ def npz_8_8_mnist(num):
     np.savez(path + f"mnist_8x8_{num}.npz", data_num)
 
 
+def divide_mask(width):
+    mask = np.load(f"data/speckle/time{width**2}_{width}x{width}.npz")["arr_0"]
+    indices = np.round(np.linspace(0, len(mask) - 1, (width**2) * 3 // 4)).astype(int)
+    # print(indices)
+    mask_75 = mask[indices]
+    # print(mask_75.shape)
+    # print(type(mask_75))
+    mask_50 = mask[::2]
+    # print(mask_50.shape)
+    mask_25 = mask[::4]
+    # print(mask_25.shape)
+    np.savez(f"data/speckle/time{len(indices)}_{width}x{width}.npz", mask_75)
+    np.savez(f"data/speckle/time{(width**2 // 2)}_{width}x{width}.npz", mask_50)
+    np.savez(f"data/speckle/time{(width**2 // 4)}_{width}x{width}.npz", mask_25)
+
+
 if __name__ == "__main__":
-    npz_data_mnist(0)
+    # npz_data_mnist(0)
+    divide_mask(8)

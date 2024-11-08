@@ -126,3 +126,7 @@ def generate_mask_pattern(
         mask_patterns_normalized,
     )
     return mask_patterns_normalized
+
+
+if __name__ == "__main__":
+    generate_mask_pattern(time_length=64, num_x_pixel_true=8, num_y_pixel_true=8)
