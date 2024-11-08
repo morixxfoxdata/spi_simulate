@@ -11,14 +11,15 @@ from models.autoencoder import Autoencoder
 from utils.speckle_generate import generate_mask_pattern
 
 # PATH = "/home1/komori/spi_simulate/"
-PATH = "/Users/komori/Desktop/spi_simulate/"
+PATH = "/Users/komori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 64
-size = 8
+speckle_num = 784
+size = 28
 EPOCHS = 10000
 USE_DATA = "mnist_0"
+COMPRESSIVE_RATIO = size**2 / speckle_num
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
     # print(os.listdir(f"{PATH}/data/speckle/"))
     generate_mask_pattern(
@@ -29,9 +30,9 @@ MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.np
 ].astype(np.float32)
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
-IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_8x8_{number}.npz")["arr_0"].astype(
-    np.float32
-)
+IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
+    "arr_0"
+].astype(np.float32)
 
 # ====================
 # Device setting
@@ -127,7 +128,10 @@ def display_comparison_with_metrics(
     axes[1].axis("off")
 
     # MSE と SSIM を表示
-    plt.suptitle(f"MSE: {mse_value:.4f}, SSIM: {ssim_value:.4f}", fontsize=14)
+    plt.suptitle(
+        f"RATIO: {COMPRESSIVE_RATIO:.4f}, MSE: {mse_value:.4f}, SSIM: {ssim_value:.4f}",
+        fontsize=14,
+    )
     plt.tight_layout()
     # ディレクトリが存在しない場合は作成
     if not os.path.exists(save_dir):

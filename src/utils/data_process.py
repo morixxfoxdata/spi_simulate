@@ -8,7 +8,7 @@ def npz_data_mnist(num):
     data_available_ten = data_all[10:20, :]
     data_num = data_available_ten[num]
     print(data_num.shape)
-    np.savez(path + f"mnist_{num}.npz", data_num)
+    np.savez(path + f"mnist_28x28_{num}.npz", data_num / 255)
 
 
 def npz_8_8_mnist(num):
@@ -26,4 +26,4 @@ def npz_8_8_mnist(num):
 
 
 if __name__ == "__main__":
-    npz_8_8_mnist(1)
+    npz_data_mnist(0)
