@@ -10,6 +10,8 @@ from skimage.metrics import structural_similarity as ssim
 from models.autoencoder import Autoencoder
 from utils.speckle_generate import generate_mask_pattern
 
+# PATH = "/home1/komori/spi_simulate/"
+PATH = "/Users/komori/Desktop/spi_simulate/"
 # ====================
 # numpy data loaded
 # ====================
@@ -17,17 +19,17 @@ speckle_num = 64
 size = 8
 EPOCHS = 10000
 USE_DATA = "mnist_0"
-if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir("data/speckle/"):
-    print(os.listdir("data/speckle/"))
+if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
+    # print(os.listdir(f"{PATH}/data/speckle/"))
     generate_mask_pattern(
         time_length=speckle_num, num_x_pixel_true=size, num_y_pixel_true=size
     )
-MASK_PATTERNS = np.load(f"data/speckle/time{speckle_num}_{size}x{size}.npz")[
+MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
     "arr_0"
 ].astype(np.float32)
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
-IMAGE = np.load(f"data/processed/mnist/mnist_8x8_{number}.npz")["arr_0"].astype(
+IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_8x8_{number}.npz")["arr_0"].astype(
     np.float32
 )
 
