@@ -41,6 +41,15 @@ def divide_mask(width):
     np.savez(f"data/speckle/time{(width**2 // 4)}_{width}x{width}.npz", mask_25)
 
 
+def npz_create():
+    data_npz = np.load("data/raw/cameraman.npz")["arr_0"]
+    # print(data_npz.shape)
+    data_true = data_npz.reshape(256 * 256)
+    print(data_true.shape)
+    np.savez("data/processed/cameraman.npz", data_true)
+
+
 if __name__ == "__main__":
     # npz_data_mnist(0)
-    divide_mask(8)
+    # divide_mask(8)
+    npz_create()

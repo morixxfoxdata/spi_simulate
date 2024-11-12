@@ -25,15 +25,15 @@ class MultiscaleSpeckleNet(nn.Module):
 
         # Final fully connected layers
         self.fc = nn.Sequential(
-            nn.Linear(16, 1024),  # 入力次元を16に変更
+            nn.Linear(16, 2048),  # 入力次元を16に変更
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(1024, 800),
+            nn.Linear(2048, 1024),
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(800, 64),
+            nn.Linear(1024, 784),
             # nn.Sigmoid(),
         )
 
@@ -89,6 +89,6 @@ class MultiscaleSpeckleNet(nn.Module):
 
 if __name__ == "__main__":
     model = MultiscaleSpeckleNet()
-    Y = torch.randn(1, 64)
+    Y = torch.randn(1, 784)
     res = model(Y)
     print(res.shape)

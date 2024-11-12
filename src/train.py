@@ -7,9 +7,8 @@ import torch
 import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 
-from models.unet import MultiscaleSpeckleNet
-
-# from models.autoencoder import Autoencoder
+# from models.unet import MultiscaleSpeckleNet
+from models.autoencoder import Autoencoder
 
 # PATH = "/home1/komori/spi_simulate/"
 # PATH = "/Users/komori/Desktop/spi_simulate"
@@ -17,25 +16,26 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 16
-size = 8
-EPOCHS = 20000
-LEARNING_RATE = 2e-5
+speckle_num = 65536
+size = 256
+EPOCHS = 10000
+LEARNING_RATE = 1e-4
 USE_DATA = "mnist_0"
 COMPRESSIVE_RATIO = speckle_num / size**2
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
     # print(os.listdir(f"{PATH}/data/speckle/"))
     print("SPECKLE does not exist!!")
 
+
 MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
     "arr_0"
 ].astype(np.float32)
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
-IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
-    "arr_0"
-].astype(np.float32)
-
+# IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
+#     "arr_0"
+# ].astype(np.float32)
+IMAGE = np.load(f"{PATH}/data/processed/cameraman.npz")["arr_0"].astype(np.float32)
 # ====================
 # Device setting
 # ====================
@@ -49,11 +49,11 @@ else:
     DEVICE = torch.device("cpu")
     print("Using CPU")
 
-model = MultiscaleSpeckleNet().to(DEVICE)
+# model = MultiscaleSpeckleNet().to(DEVICE)
 
-# model = Autoencoder(
-#     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
-# ).to(DEVICE)
+model = Autoencoder(
+    input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
+).to(DEVICE)
 model_name = model.__class__.__name__
 
 
@@ -150,7 +150,7 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
         optimizer.step()
 
         if epoch % 1000 == 0:
-            print(f"Epoch [{epoch}/{num_epochs}], Loss: {loss.item():.4f}")
+            print(f"Epoch [{epoch}/{num_epochs}], Loss: {loss.item():.5f}")
 
     # 学習後の再構成画像を出力
     model.eval()
@@ -167,3 +167,4 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
 
 if __name__ == "__main__":
     main()
+    # print(IMAGE.shape)
