@@ -7,8 +7,9 @@ import torch
 import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 
-# from models.unet import MultiscaleSpeckleNet
-from models.autoencoder import Autoencoder
+from models.unet import MultiscaleSpeckleNet
+
+# from models.autoencoder import Autoencoder
 
 # PATH = "/home1/komori/spi_simulate/"
 # PATH = "/Users/komori/Desktop/spi_simulate"
@@ -18,7 +19,7 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 speckle_num = 16
 size = 8
-EPOCHS = 10000
+EPOCHS = 5000
 USE_DATA = "mnist_0"
 COMPRESSIVE_RATIO = speckle_num / size**2
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
@@ -50,11 +51,11 @@ else:
 # model = EnhancedAutoencoder(
 #     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
 # ).to(DEVICE)
-# model = MultiscaleSpeckleNet().to(DEVICE)
+model = MultiscaleSpeckleNet().to(DEVICE)
 # model = BasedDecoder(hidden_dim=speckle_num, output_dim=size**2).to(DEVICE)
-model = Autoencoder(
-    input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
-).to(DEVICE)
+# model = Autoencoder(
+#     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
+# ).to(DEVICE)
 # model = ShortAutoencoder(
 #     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
 # ).to(DEVICE)
