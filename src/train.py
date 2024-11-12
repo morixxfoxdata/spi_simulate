@@ -19,7 +19,8 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 speckle_num = 16
 size = 8
-EPOCHS = 5000
+EPOCHS = 20000
+LEARNING_RATE = 2e-5
 USE_DATA = "mnist_0"
 COMPRESSIVE_RATIO = speckle_num / size**2
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
@@ -48,18 +49,11 @@ else:
     DEVICE = torch.device("cpu")
     print("Using CPU")
 
-# model = EnhancedAutoencoder(
-#     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
-# ).to(DEVICE)
 model = MultiscaleSpeckleNet().to(DEVICE)
-# model = BasedDecoder(hidden_dim=speckle_num, output_dim=size**2).to(DEVICE)
+
 # model = Autoencoder(
 #     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
 # ).to(DEVICE)
-# model = ShortAutoencoder(
-#     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
-# ).to(DEVICE)
-# print(model.__class__.__name__)
 model_name = model.__class__.__name__
 
 
@@ -83,23 +77,6 @@ def custom_loss(Y, X_prime, S, time_length):
 # MSE の計算
 def calculate_mse(image1, image2):
     return np.mean((image1 - image2) ** 2)
-
-
-# def display_comparison(size, X_original, X_reconstructed):
-#     fig, axes = plt.subplots(1, 2, figsize=(8, 4))
-
-#     # X_original の表示
-#     axes[0].imshow(X_original.reshape(size, -1), cmap="gray")
-#     axes[0].set_title("Original")
-#     axes[0].axis("off")
-
-#     # X_reconstructed の表示
-#     axes[1].imshow(X_reconstructed.reshape(size, -1), cmap="gray")
-#     axes[1].set_title("Reconstructed")
-#     axes[1].axis("off")
-
-#     plt.tight_layout()
-#     plt.show()
 
 
 # 画像を比較して MSE と SSIM を表示する関数
@@ -142,7 +119,7 @@ def display_comparison_with_metrics(
     # 画像を保存
     save_path = os.path.join(
         save_dir,
-        f"{size}{USE_DATA}_sp{speckle_num}_{model_name}_ep{EPOCHS}.png",
+        f"{size}{USE_DATA}_sp{speckle_num}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
     )
     plt.savefig(save_path)
     print(f"Comparison plot saved to {save_path}")
@@ -155,24 +132,7 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
     mask_patterns = torch.tensor(mask_patterns) / np.max(mask_patterns)
     mask_patterns = mask_patterns.to(device)
     Y = calculate_Y(image_data, mask_patterns, time_length=speckle_num)
-    # gen1 = generate_mask_pattern(
-    #     time_length=156, num_x_pixel_true=28, num_y_pixel_true=28
-    # )
-    # print(gen1.shape)
-    # npz_data_mnist(9)
-    # print(mask_patterns.shape)
-    # print(max(image_data))
-    # print(device)
-    # print(type(image_data))
-    # print(mask_patterns.shape)
-    # print("Y shape: ", Y.shape)
-    # model = EnhancedAutoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=64).to(
-    #     device
-    # )
-    # model = Autoencoder(input_dim=speckle_num, hidden_dim=128, output_dim=784).to(
-    #     device
-    # )
-    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     # print(model)
     # トレーニングループ
     num_epochs = EPOCHS  # 学習エポック数
@@ -199,18 +159,11 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
             model(Y).squeeze().cpu().numpy()
         )  # Yから再構成画像X'を生成し、NumPy配列に変換
         X_original = image_data.cpu().numpy()  # 元の画像XをNumPy配列に変換
-    # print(X_reconstructed.shape)
-    # print(X_original.shape)
     # 再構成画像の表示
     display_comparison_with_metrics(
         X_original=X_original, X_reconstructed=X_reconstructed
     )
-    # plt.imshow(X_reconstructed, cmap="gray")
-    # plt.title("Reconstructed Image")
-    # plt.axis("off")
-    # plt.show()
 
 
 if __name__ == "__main__":
     main()
-    # print("Hello world!")
