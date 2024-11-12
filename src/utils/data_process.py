@@ -46,7 +46,7 @@ def npz_create():
     # print(data_npz.shape)
     data_true = data_npz.reshape(256 * 256)
     print(data_true.shape)
-    np.savez("data/processed/cameraman.npz", data_true)
+    np.savez("data/processed/cameraman.npz", data_true / 255)
 
 
 if __name__ == "__main__":

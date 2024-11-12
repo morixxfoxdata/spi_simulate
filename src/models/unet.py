@@ -33,7 +33,7 @@ class MultiscaleSpeckleNet(nn.Module):
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(1024, 784),
+            nn.Linear(1024, 65536),
             # nn.Sigmoid(),
         )
 
@@ -89,6 +89,6 @@ class MultiscaleSpeckleNet(nn.Module):
 
 if __name__ == "__main__":
     model = MultiscaleSpeckleNet()
-    Y = torch.randn(1, 784)
+    Y = torch.randn(1, 1024)
     res = model(Y)
     print(res.shape)

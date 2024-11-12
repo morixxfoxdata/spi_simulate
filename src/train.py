@@ -16,11 +16,12 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 65536
+speckle_num = 1024
 size = 256
 EPOCHS = 10000
 LEARNING_RATE = 1e-4
-USE_DATA = "mnist_0"
+# USE_DATA = "mnist_0"
+USE_DATA = "cameraman"
 COMPRESSIVE_RATIO = speckle_num / size**2
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
     # print(os.listdir(f"{PATH}/data/speckle/"))
