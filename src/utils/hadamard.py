@@ -44,7 +44,7 @@ def hadamard_pattern(n: int) -> np.ndarray:
             outer_to_vec = outer_matrix.flatten()
             hadamard_pattern_matrix[count, :] = outer_to_vec
             count += 1
-    return np.where(hadamard_pattern_matrix > 0, 1, 0)
+    return np.where(hadamard_pattern_matrix > 0, 1, -1)
 
 
 def hadamard_pattern_alternate(n: int) -> np.ndarray:
