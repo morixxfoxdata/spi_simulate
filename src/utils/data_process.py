@@ -63,15 +63,31 @@ def divide_mask(width):
     np.savez(f"data/speckle/time{(width**2 // 4)}_{width}x{width}.npz", mask_25)
 
 
+def downsample_data(width, N=16):
+    # data: 元のデータ（リストやNumPy配列）
+    # N: 取得したいデータ点の数
+    mask = np.load(f"data/speckle/time{width**2}_{width}x{width}.npz")["arr_0"]
+    # 等間隔のインデックスを計算
+    indices = np.linspace(0, len(mask) - 1, N, dtype=int)
+
+    # データ点を選択
+    downsampled_data = mask[indices]
+    np.savez(f"data/speckle/time{len(N)}_{width}x{width}.npz", downsampled_data)
+    # return downsampled_data
+
+
 def npz_create():
     data_npz = np.load("data/raw/cameraman.npz")["arr_0"]
     # print(data_npz.shape)
     data_true = data_npz.reshape(256 * 256)
     print(data_true.shape)
+    print(max(data_true))
     np.savez("data/processed/cameraman.npz", data_true / 255)
 
 
 if __name__ == "__main__":
-    npz_data_mnist(0)
+    # npz_data_mnist(0)
     # divide_mask(8)
     # npz_create()
+    downsample_data(8, 12)
+    # print(resample.shape)

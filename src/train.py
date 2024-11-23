@@ -16,12 +16,12 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 1024
-size = 256
+speckle_num = 64
+size = 8
 EPOCHS = 10000
 LEARNING_RATE = 1e-4
-# USE_DATA = "mnist_0"
-USE_DATA = "cameraman"
+USE_DATA = "mnist_0"
+# USE_DATA = "cameraman"
 COMPRESSIVE_RATIO = speckle_num / size**2
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
     # print(os.listdir(f"{PATH}/data/speckle/"))
@@ -33,10 +33,10 @@ MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.np
 ].astype(np.float32)
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
-# IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
-#     "arr_0"
-# ].astype(np.float32)
-IMAGE = np.load(f"{PATH}/data/processed/cameraman.npz")["arr_0"].astype(np.float32)
+IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
+    "arr_0"
+].astype(np.float32)
+# IMAGE = np.load(f"{PATH}/data/processed/cameraman.npz")["arr_0"].astype(np.float32)
 # ====================
 # Device setting
 # ====================
@@ -52,9 +52,7 @@ else:
 
 # model = MultiscaleSpeckleNet().to(DEVICE)
 
-model = Autoencoder(
-    input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
-).to(DEVICE)
+model = Autoencoder(input_dim=speckle_num, hidden_dim=8, output_dim=size**2).to(DEVICE)
 model_name = model.__class__.__name__
 
 
@@ -120,7 +118,7 @@ def display_comparison_with_metrics(
     # 画像を保存
     save_path = os.path.join(
         save_dir,
-        f"{size}{USE_DATA}_sp{speckle_num}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
+        f"{size}{USE_DATA}_sp{speckle_num}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}_hidden8.png",
     )
     plt.savefig(save_path)
     print(f"Comparison plot saved to {save_path}")

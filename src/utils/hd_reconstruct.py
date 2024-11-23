@@ -10,14 +10,24 @@ HD_PATTERN = np.load(
 IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
     "arr_0"
 ].astype(np.float32)
-reshape_IMAGE = IMAGE.reshape(size**2, -1)
+reshape_IMAGE = IMAGE.flatten()
 yy = np.dot(HD_PATTERN, reshape_IMAGE)
-ada_sp = np.dot(yy.T, HD_PATTERN.T) / size**2
+recon_vec = np.dot(HD_PATTERN.T, yy)
+recon_img = recon_vec.reshape(size, size)
+reconstructed_image = (recon_img - np.min(recon_img)) / (
+    np.max(recon_img) - np.min(recon_img)
+)
+# ada_sp = np.dot(yy.T, HD_PATTERN.T) / size
+# H_inv = np.dot(yy.T, reshape_IMAGE) / size**2
+# recon_h = np.dot(yy, H_inv)
 if __name__ == "__main__":
-    print(HD_PATTERN.shape)
-    print(reshape_IMAGE.shape)
-    print(yy.shape)
-    print(ada_sp.shape)
-    plt.imshow(ada_sp.reshape(size, size), cmap="gray")
-
+    print("HD size: ", HD_PATTERN.shape)
+    print("HD min, max: ", HD_PATTERN)
+    print("flatten image:", reshape_IMAGE.shape)
+    print("yy shape: ", yy.shape)
+    # print(recon_h.shape)
+    print("max yy: ", max(yy))
+    print("max reshape_IMG:", max(reshape_IMAGE))
+    plt.imshow(reconstructed_image, cmap="gray")
     plt.show()
+    # plt.show()
