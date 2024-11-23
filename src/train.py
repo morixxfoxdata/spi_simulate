@@ -7,7 +7,7 @@ import torch
 import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 
-from models.unet import MultiscaleSpeckleNet
+from models.unet import NewMultiscaleSpeckleNet
 
 # from models.autoencoder import Autoencoder
 
@@ -17,8 +17,9 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 52
-size = 8
+speckle_num = 320
+
+size = 32
 EPOCHS = 10000
 LEARNING_RATE = 1e-4
 USE_DATA = "mnist_0"
@@ -51,7 +52,8 @@ else:
     DEVICE = torch.device("cpu")
     print("Using CPU")
 
-model = MultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
+# model = MultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
+model = NewMultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
 
 # model = Autoencoder(
 #     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
