@@ -7,8 +7,9 @@ import torch
 import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 
-# from models.unet import MultiscaleSpeckleNet
-from models.autoencoder import Autoencoder
+from models.unet import MultiscaleSpeckleNet
+
+# from models.autoencoder import Autoencoder
 
 # PATH = "/home1/komori/spi_simulate/"
 # PATH = "/Users/komori/Desktop/spi_simulate"
@@ -16,7 +17,7 @@ PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 64
+speckle_num = 52
 size = 8
 EPOCHS = 10000
 LEARNING_RATE = 1e-4
@@ -50,9 +51,11 @@ else:
     DEVICE = torch.device("cpu")
     print("Using CPU")
 
-# model = MultiscaleSpeckleNet().to(DEVICE)
+model = MultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
 
-model = Autoencoder(input_dim=speckle_num, hidden_dim=8, output_dim=size**2).to(DEVICE)
+# model = Autoencoder(
+#     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
+# ).to(DEVICE)
 model_name = model.__class__.__name__
 
 
@@ -75,6 +78,7 @@ def custom_loss(Y, X_prime, S, time_length):
 
 # MSE の計算
 def calculate_mse(image1, image2):
+    # image1 = image1.flatten()
     return np.mean((image1 - image2) ** 2)
 
 
@@ -83,6 +87,7 @@ def display_comparison_with_metrics(
     X_original, X_reconstructed, save_dir="data/results"
 ):
     # MSE 計算
+    X_original = X_original.flatten()
     mse_value = calculate_mse(X_original, X_reconstructed)
 
     # SSIM 計算
@@ -108,7 +113,7 @@ def display_comparison_with_metrics(
 
     # MSE と SSIM を表示
     plt.suptitle(
-        f"RATIO: {COMPRESSIVE_RATIO:.4f}, MSE: {mse_value:.4f}, SSIM: {ssim_value:.4f}",
+        f"RATIO: {COMPRESSIVE_RATIO:.4f}, MSE: {mse_value:.6f}, SSIM: {ssim_value:.6f}",
         fontsize=14,
     )
     plt.tight_layout()
@@ -118,7 +123,7 @@ def display_comparison_with_metrics(
     # 画像を保存
     save_path = os.path.join(
         save_dir,
-        f"{size}{USE_DATA}_sp{speckle_num}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}_hidden8.png",
+        f"{model_name}/{size}{USE_DATA}_sp{speckle_num}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
     )
     plt.savefig(save_path)
     print(f"Comparison plot saved to {save_path}")

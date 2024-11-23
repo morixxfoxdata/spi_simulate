@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class MultiscaleSpeckleNet(nn.Module):
-    def __init__(self):
+    def __init__(self, outdim):
         super(MultiscaleSpeckleNet, self).__init__()
 
         # Encoder
@@ -25,15 +25,15 @@ class MultiscaleSpeckleNet(nn.Module):
 
         # Final fully connected layers
         self.fc = nn.Sequential(
-            nn.Linear(16, 2048),  # 入力次元を16に変更
+            nn.Linear(16, outdim),  # 入力次元を16に変更
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(2048, 1024),
+            nn.Linear(outdim, outdim),
             # nn.LeakyReLU(0.2),
             nn.PReLU(),
             nn.Dropout(0.1),
-            nn.Linear(1024, 65536),
+            nn.Linear(outdim, outdim),
             # nn.Sigmoid(),
         )
 
@@ -88,7 +88,7 @@ class MultiscaleSpeckleNet(nn.Module):
 
 
 if __name__ == "__main__":
-    model = MultiscaleSpeckleNet()
+    model = MultiscaleSpeckleNet(outdim=64)
     Y = torch.randn(1, 1024)
     res = model(Y)
     print(res.shape)

@@ -72,7 +72,7 @@ def downsample_data(width, N=16):
 
     # データ点を選択
     downsampled_data = mask[indices]
-    np.savez(f"data/speckle/time{len(N)}_{width}x{width}.npz", downsampled_data)
+    np.savez(f"data/speckle/time{N}_{width}x{width}.npz", downsampled_data)
     # return downsampled_data
 
 
@@ -89,5 +89,5 @@ if __name__ == "__main__":
     # npz_data_mnist(0)
     # divide_mask(8)
     # npz_create()
-    downsample_data(8, 12)
+    downsample_data(32, 64)
     # print(resample.shape)

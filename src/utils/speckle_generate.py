@@ -129,4 +129,4 @@ def generate_mask_pattern(
 
 
 if __name__ == "__main__":
-    generate_mask_pattern(time_length=1024, num_x_pixel_true=256, num_y_pixel_true=256)
+    generate_mask_pattern(time_length=1024, num_x_pixel_true=32, num_y_pixel_true=32)
