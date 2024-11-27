@@ -2,7 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 PATH = "/Users/norikikomori/Desktop/spi_simulate"
-size = 8
+# PATH = "/home1/komori/spi_simulate"
+size = 32
 number = 0
 HD_PATTERN = np.load(
     f"{PATH}/data/hadamard/HP_image_{size**2}_size_{size}x{size}_normal.npz"

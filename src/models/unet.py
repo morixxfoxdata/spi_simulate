@@ -83,7 +83,6 @@ class MultiscaleSpeckleNet(nn.Module):
         # Flatten and pass through fully connected layers
         out = self.fc(pooled)  # (batch_size, 64)
         activated_out = self.activation(out)
-
         return activated_out
 
 
@@ -214,7 +213,7 @@ class NewMultiscaleSpeckleNet(nn.Module):
 
 
 if __name__ == "__main__":
-    model = NewMultiscaleSpeckleNet(outdim=1024)
+    model = MultiscaleSpeckleNet(outdim=64)
     Y = torch.randn(1, 1024)
     res = model(Y)
     print(res.shape)
