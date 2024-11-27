@@ -1,14 +1,17 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-PATH = "/Users/norikikomori/Desktop/spi_simulate"
-# PATH = "/home1/komori/spi_simulate"
-size = 32
+# PATH = "/Users/norikikomori/Desktop/spi_simulate"
+PATH = "/home1/komori/spi_simulate"
+size = 256
 number = 0
 HD_PATTERN = np.load(
     f"{PATH}/data/hadamard/HP_image_{size**2}_size_{size}x{size}_normal.npz"
 )["arr_0"].astype(np.float32)
-IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
+# IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
+#     "arr_0"
+# ].astype(np.float32)
+IMAGE = np.load(f"{PATH}/data/processed/cameraman.npz")[
     "arr_0"
 ].astype(np.float32)
 reshape_IMAGE = IMAGE.flatten()
@@ -31,4 +34,3 @@ if __name__ == "__main__":
     print("max reshape_IMG:", max(reshape_IMAGE))
     plt.imshow(reconstructed_image, cmap="gray")
     plt.show()
-    # plt.show()

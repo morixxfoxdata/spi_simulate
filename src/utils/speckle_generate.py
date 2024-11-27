@@ -122,11 +122,12 @@ def generate_mask_pattern(
 
     # save mask_patterns as npz
     np.savez(
-        f"data/speckle/time{time_length}_{num_x_pixel_true}x{num_y_pixel_true}.npz",
+        f"/home1/komori/spi_simulate/data/speckle/time{time_length}_{num_x_pixel_true}x{num_y_pixel_true}.npz",
         mask_patterns_normalized,
     )
-    return mask_patterns_normalized
+    print("Saved!")
+    # return mask_patterns_normalized
 
 
 if __name__ == "__main__":
-    generate_mask_pattern(time_length=1024, num_x_pixel_true=32, num_y_pixel_true=32)
+    generate_mask_pattern(time_length=256, num_x_pixel_true=256, num_y_pixel_true=256)

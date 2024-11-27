@@ -7,38 +7,43 @@ import torch
 import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 
-from models.unet import NewMultiscaleSpeckleNet
+# from models.unet import NewMultiscaleSpeckleNet
+# from models.unet import MultiscaleSpeckleNet
+from models.autoencoder import Autoencoder
+from models.unet import SimpleNet, TwoLayerNet, LargeNet, NewMultiscaleSpeckleNet
 
-# from models.autoencoder import Autoencoder
-
-# PATH = "/home1/komori/spi_simulate/"
+PATH = "/home1/komori/spi_simulate"
 # PATH = "/Users/komori/Desktop/spi_simulate"
-PATH = "/Users/norikikomori/Desktop/spi_simulate"
+# PATH = "/Users/norikikomori/Desktop/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 320
+speckle_num = 49152
 
-size = 32
+size = 256
 EPOCHS = 10000
 LEARNING_RATE = 1e-4
-USE_DATA = "mnist_0"
-# USE_DATA = "cameraman"
+# USE_DATA = "mnist_0"
+USE_DATA = "cameraman"
 COMPRESSIVE_RATIO = speckle_num / size**2
 if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
     # print(os.listdir(f"{PATH}/data/speckle/"))
     print("SPECKLE does not exist!!")
 
 
+# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
+#     "mask_patterns_normalized"
+# ].astype(np.float32)
 MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
     "arr_0"
 ].astype(np.float32)
+# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
-IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
-    "arr_0"
-].astype(np.float32)
-# IMAGE = np.load(f"{PATH}/data/processed/cameraman.npz")["arr_0"].astype(np.float32)
+# IMAGE = np.load(f"{PATH}/data/processed/mnist/mnist_{size}x{size}_{number}.npz")[
+#     "arr_0"
+# ].astype(np.float32)
+IMAGE = np.load(f"{PATH}/data/processed/cameraman.npz")["arr_0"].astype(np.float32)
 # ====================
 # Device setting
 # ====================
@@ -53,11 +58,15 @@ else:
     print("Using CPU")
 
 # model = MultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
-model = NewMultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
+# model = NewMultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
 
 # model = Autoencoder(
-#     input_dim=speckle_num, hidden_dim=speckle_num // 4, output_dim=size**2
+#     input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
 # ).to(DEVICE)
+# model = SimpleNet(time_length=speckle_num, outdim=size**2).to(DEVICE)
+# model = TwoLayerNet(outdim=size ** 2).to(DEVICE)
+# model = LargeNet(outdim=size ** 2).to(DEVICE)
+model = NewMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
 model_name = model.__class__.__name__
 
 
@@ -77,7 +86,6 @@ def custom_loss(Y, X_prime, S, time_length):
     loss = torch.mean((Y - SX_prime) ** 2)
     return loss
 
-
 # MSE の計算
 def calculate_mse(image1, image2):
     # image1 = image1.flatten()
@@ -86,7 +94,7 @@ def calculate_mse(image1, image2):
 
 # 画像を比較して MSE と SSIM を表示する関数
 def display_comparison_with_metrics(
-    X_original, X_reconstructed, save_dir="data/results"
+    X_original, X_reconstructed, save_dir=f"{PATH}/data/results"
 ):
     # MSE 計算
     X_original = X_original.flatten()
@@ -172,5 +180,7 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
 
 
 if __name__ == "__main__":
+    # print(list(MASK_PATTERNS.items()))
     main()
+    # print(MASK_PATTERNS)
     # print(IMAGE.shape)

@@ -115,7 +115,7 @@ def save_hadamard_data(n, alternate=True):
         kind = "normal"
         saved_data = hadamard_pattern(n)
     np.savez(
-        "data/hadamard/HP_image_"
+        "/home1/komori/spi_simulate/data/hadamard/HP_image_"
         + str(n**2)
         + "_size_"
         + str(n)
@@ -128,4 +128,4 @@ def save_hadamard_data(n, alternate=True):
 
 
 if __name__ == "__main__":
-    save_hadamard_data(32, alternate=False)
+    save_hadamard_data(256, alternate=False)
