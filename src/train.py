@@ -18,10 +18,12 @@ PATH = "/home1/komori/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 32768
-LOSS_SELECT = "l1"
+speckle_num = 65536
+LOSS_SELECT = "l1_tv"
 # 正則化しない場合でもlambda_regを0に設定する
-lambda_reg = 0.001
+# lambda_reg = 0.00001
+alpha = 0.0
+beta = 0.0
 size = 256
 EPOCHS = 10000
 LEARNING_RATE = 1e-4
@@ -33,12 +35,12 @@ if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckl
     print("SPECKLE does not exist!!")
 
 
-# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
-#     "mask_patterns_normalized"
-# ].astype(np.float32)
 MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
-    "arr_0"
+    "mask_patterns_normalized"
 ].astype(np.float32)
+# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
+#     "arr_0"
+# ].astype(np.float32)
 # MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
@@ -62,13 +64,13 @@ else:
 # model = MultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
 # model = NewMultiscaleSpeckleNet(outdim=size**2).to(DEVICE)
 
-# model = Autoencoder(
-#     input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
-# ).to(DEVICE)
+model = Autoencoder(
+    input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
+).to(DEVICE)
 # model = SimpleNet(time_length=speckle_num, outdim=size**2).to(DEVICE)
 # model = TwoLayerNet(outdim=size ** 2).to(DEVICE)
 # model = LargeNet(outdim=size ** 2).to(DEVICE)
-model = NewMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+# model = NewMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
 model_name = model.__class__.__name__
 
 
@@ -100,6 +102,31 @@ def l1_custom_loss(Y, X_prime, S, time_length, lambda_reg=0.01):
     
     # 総損失
     loss = mse_loss + l1_reg
+    return loss
+
+def tv_custom_loss(Y, X_prime, S, time_length, lambda_reg=0.01):
+    X_prime_flat = X_prime.view(-1)  # X'をフラット化
+    S = S.reshape(time_length, -1).float()
+    SX_prime = torch.matmul(S, X_prime_flat)
+    SX_prime = SX_prime / torch.max(SX_prime)
+    mse_loss = torch.mean((Y - SX_prime) ** 2)
+    
+    # Total Variation正則化項の計算
+    tv_reg = lambda_reg * torch.sum(torch.abs(X_prime_flat[1:] - X_prime_flat[:-1]))
+    
+    # 総損失
+    loss = mse_loss + tv_reg
+    return loss
+
+def l1_tv_custom_loss(Y, X_prime, S, time_length, alpha=0.01, beta=0.01):
+    X_prime_flat = X_prime.view(-1)  # X'をフラット化
+    S = S.reshape(time_length, -1).float()
+    SX_prime = torch.matmul(S, X_prime_flat)
+    SX_prime = SX_prime / torch.max(SX_prime)
+    mse_loss = torch.mean((Y - SX_prime) ** 2)
+    l1_reg = alpha * torch.norm(X_prime_flat, 1)
+    tv_reg = beta * torch.sum(torch.abs(X_prime_flat[1:] - X_prime_flat[:-1]))
+    loss = mse_loss + l1_reg + tv_reg
     return loss
 # MSE の計算
 def calculate_mse(image1, image2):
@@ -148,7 +175,7 @@ def display_comparison_with_metrics(
     # 画像を保存
     save_path = os.path.join(
         save_dir,
-        f"{model_name}/{size}{USE_DATA}_sp{speckle_num}_{LOSS_SELECT}_{lambda_reg}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
+        f"{model_name}/{size}{USE_DATA}_sp{speckle_num}_{LOSS_SELECT}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
     )
     plt.savefig(save_path)
     print(f"Comparison plot saved to {save_path}")
@@ -172,7 +199,11 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
 
         X_prime = model(Y)  # Yから再構成画像X'を生成
         if LOSS_SELECT == "l1":
-            loss = l1_custom_loss(Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num, lambda_reg=lambda_reg)
+            loss = l1_custom_loss(Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num, lambda_reg=alpha)
+        elif LOSS_SELECT == "tv":
+            loss = tv_custom_loss(Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num, lambda_reg=beta)
+        elif LOSS_SELECT == "l1_tv":
+            loss = l1_tv_custom_loss(Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num, alpha=alpha, beta=beta)
         else:
             loss = custom_loss(
                 Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num
