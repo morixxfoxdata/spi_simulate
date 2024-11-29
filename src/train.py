@@ -18,7 +18,7 @@ PATH = "/home1/komori/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 65536
+speckle_num = 49152
 
 size = 256
 EPOCHS = 10000
@@ -86,19 +86,6 @@ def custom_loss(Y, X_prime, S, time_length):
     loss = torch.mean((Y - SX_prime) ** 2)
     return loss
 
-def l1_custom_loss(Y, X_prime, S, time_length, lambda_reg=0.01):
-    X_prime_flat = X_prime.view(-1)  # X'をフラット化
-    S = S.reshape(time_length, -1).float()
-    SX_prime = torch.matmul(S, X_prime_flat)
-    SX_prime = SX_prime / torch.max(SX_prime)
-    mse_loss = torch.mean((Y - SX_prime) ** 2)
-    
-    # L1正則化項の計算
-    l1_reg = lambda_reg * torch.norm(X_prime_flat, 1)
-    
-    # 総損失
-    loss = mse_loss + l1_reg
-    return loss
 # MSE の計算
 def calculate_mse(image1, image2):
     # image1 = image1.flatten()
@@ -169,16 +156,12 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
         optimizer.zero_grad()
 
         X_prime = model(Y)  # Yから再構成画像X'を生成
-        # loss = custom_loss(
-        #     Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num
-        # )  # 損失を計算
-        loss = l1_custom_loss(
-            Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num, lambda_reg=0.01
-        )
+        loss = custom_loss(
+            Y.squeeze(0), X_prime, mask_patterns, time_length=speckle_num
+        )  # 損失を計算
 
         loss.backward()
         optimizer.step()
-
         if epoch % 1000 == 0:
             print(f"Epoch [{epoch}/{num_epochs}], Loss: {loss.item():.5f}")
 
