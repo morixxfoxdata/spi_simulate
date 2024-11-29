@@ -366,12 +366,7 @@ class TwoLayerNet(nn.Module):
         activated_out = self.activation(out)
         return activated_out
 
-if __name__ == "__main__":
-    # model = NewMultiscaleSpeckleNet(outdim=1024)
-    model = SimpleNet(time_length=1024, outdim=65536)
-    Y = torch.randn(1, 1024)
-    res = model(Y)
-    print(res.shape)
+
 
 class ModifiedMultiscaleSpeckleNet(nn.Module):
     def __init__(self, outdim):
@@ -459,3 +454,10 @@ class ModifiedMultiscaleSpeckleNet(nn.Module):
         out = self.fc(pooled)  # (batch_size, 64)
         activated_out = self.activation(out)
         return activated_out
+
+if __name__ == "__main__":
+    # model = NewMultiscaleSpeckleNet(outdim=1024)
+    model = SimpleNet(time_length=1024, outdim=65536)
+    Y = torch.randn(1, 1024)
+    res = model(Y)
+    print(res.shape)
