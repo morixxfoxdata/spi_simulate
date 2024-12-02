@@ -10,7 +10,7 @@ from skimage.metrics import structural_similarity as ssim
 # from models.unet import NewMultiscaleSpeckleNet
 # from models.unet import MultiscaleSpeckleNet
 from models.autoencoder import Autoencoder
-from models.unet import SimpleNet, TwoLayerNet, LargeNet, NewMultiscaleSpeckleNet, ModifiedMultiscaleSpeckleNet, DeepMultiscaleSpeckleNet
+from models.unet import SimpleNet, TwoLayerNet, LargeNet, NewMultiscaleSpeckleNet, ModifiedMultiscaleSpeckleNet, DeepMultiscaleSpeckleNet, NewDeepMultiscaleSpeckleNet
 
 PATH = "/home1/komori/spi_simulate"
 # PATH = "/Users/komori/Desktop/spi_simulate"
@@ -72,7 +72,7 @@ else:
 # model = LargeNet(outdim=size ** 2).to(DEVICE)
 # model = NewMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
 # model = ModifiedMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
-model = DeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+model = NewDeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
 model_name = model.__class__.__name__
 
 
