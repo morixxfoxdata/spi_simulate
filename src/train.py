@@ -10,7 +10,7 @@ from skimage.metrics import structural_similarity as ssim
 # from models.unet import NewMultiscaleSpeckleNet
 # from models.unet import MultiscaleSpeckleNet
 from models.autoencoder import Autoencoder
-from models.unet import SimpleNet, TwoLayerNet, LargeNet, NewMultiscaleSpeckleNet, ModifiedMultiscaleSpeckleNet
+from models.unet import SimpleNet, TwoLayerNet, LargeNet, NewMultiscaleSpeckleNet, ModifiedMultiscaleSpeckleNet, DeepMultiscaleSpeckleNet
 
 PATH = "/home1/komori/spi_simulate"
 # PATH = "/Users/komori/Desktop/spi_simulate"
@@ -18,7 +18,7 @@ PATH = "/home1/komori/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 49152
+speckle_num = 65536
 LOSS_SELECT = "l1_tv"
 # 正則化しない場合でもlambda_regを0に設定する
 # lambda_reg = 0.00001
@@ -35,12 +35,12 @@ if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckl
     print("SPECKLE does not exist!!")
 
 
-# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
-#     "mask_patterns_normalized"
-# ].astype(np.float32)
 MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
-    "arr_0"
+    "mask_patterns_normalized"
 ].astype(np.float32)
+# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
+#     "arr_0"
+# ].astype(np.float32)
 # MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")
 # model = Autoencoder(input_dim=speckle_num, hidden_dim=16, output_dim=size**2)
 number = USE_DATA[-1]
@@ -71,7 +71,8 @@ else:
 # model = TwoLayerNet(outdim=size ** 2).to(DEVICE)
 # model = LargeNet(outdim=size ** 2).to(DEVICE)
 # model = NewMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
-model = ModifiedMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+# model = ModifiedMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+model = DeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
 model_name = model.__class__.__name__
 
 
