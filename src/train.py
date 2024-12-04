@@ -18,26 +18,26 @@ PATH = "/home1/komori/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num = 65536
+speckle_num_list = [16384, 32768, 49152, 65536]
 LOSS_SELECT = "l1_tv"
 # 正則化しない場合でもlambda_regを0に設定する
 # lambda_reg = 0.00001
 alpha = 0.0
 beta = 0.0
 size = 256
-EPOCHS = 10000
+EPOCHS = 20000
 LEARNING_RATE = 1e-4
 # USE_DATA = "mnist_0"
 USE_DATA = "cameraman"
-COMPRESSIVE_RATIO = speckle_num / size**2
-if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
-    # print(os.listdir(f"{PATH}/data/speckle/"))
-    print("SPECKLE does not exist!!")
+# COMPRESSIVE_RATIO = speckle_num / size**2
+# if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
+#     # print(os.listdir(f"{PATH}/data/speckle/"))
+#     print("SPECKLE does not exist!!")
 
 
-MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
-    "mask_patterns_normalized"
-].astype(np.float32)
+# MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
+#     "mask_patterns_normalized"
+# ].astype(np.float32)
 # MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
 #     "arr_0"
 # ].astype(np.float32)
@@ -72,8 +72,8 @@ else:
 # model = LargeNet(outdim=size ** 2).to(DEVICE)
 # model = NewMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
 # model = ModifiedMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
-model = NewDeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
-model_name = model.__class__.__name__
+# model = NewDeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+# model_name = model.__class__.__name__
 
 
 def calculate_Y(X, S, time_length):
@@ -138,7 +138,7 @@ def calculate_mse(image1, image2):
 
 # 画像を比較して MSE と SSIM を表示する関数
 def display_comparison_with_metrics(
-    X_original, X_reconstructed, save_dir=f"{PATH}/data/results"
+    X_original, X_reconstructed, save_dir=f"{PATH}/data/results", ratio=1
 ):
     # MSE 計算
     X_original = X_original.flatten()
@@ -167,7 +167,7 @@ def display_comparison_with_metrics(
 
     # MSE と SSIM を表示
     plt.suptitle(
-        f"RATIO: {COMPRESSIVE_RATIO:.4f}, MSE: {mse_value:.6f}, SSIM: {ssim_value:.6f}",
+        f"RATIO: {ratio:.4f}, MSE: {mse_value:.6f}, SSIM: {ssim_value:.6f}",
         fontsize=14,
     )
     plt.tight_layout()
@@ -181,10 +181,11 @@ def display_comparison_with_metrics(
     )
     plt.savefig(save_path)
     print(f"Comparison plot saved to {save_path}")
-    plt.show()
+    # plt.show()
 
 
-def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
+def main(speckle_num, model, mask_patterns, image_data=IMAGE, device=DEVICE):
+    COMPRESSIVE_RATIO = speckle_num / size**2
     image_data = torch.tensor(image_data)
     image_data = image_data.to(device)
     mask_patterns = torch.tensor(mask_patterns) / np.max(mask_patterns)
@@ -226,12 +227,27 @@ def main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE):
         X_original = image_data.cpu().numpy()  # 元の画像XをNumPy配列に変換
     # 再構成画像の表示
     display_comparison_with_metrics(
-        X_original=X_original, X_reconstructed=X_reconstructed
+        X_original=X_original, X_reconstructed=X_reconstructed, ratio=COMPRESSIVE_RATIO
     )
 
 
 if __name__ == "__main__":
-    # print(list(MASK_PATTERNS.items()))
-    main()
-    # print(MASK_PATTERNS)
-    # print(IMAGE.shape)
+    for speckle_num in speckle_num_list:
+        print(f"Processing speckle_num: {speckle_num}")
+        # COMPRESSIVE_RATIO = speckle_num / size**2
+        if f"time{speckle_num}_{size}x{size}.npz" not in os.listdir(f"{PATH}/data/speckle/"):
+        # print(os.listdir(f"{PATH}/data/speckle/"))
+            print("SPECKLE does not exist!!")
+        # print(list(MASK_PATTERNS.items()))
+        if speckle_num == 65536:
+            MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
+            "mask_patterns_normalized"].astype(np.float32)
+        else:
+            MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
+            "arr_0"].astype(np.float32)
+        model = DeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+        model_name = model.__class__.__name__
+        # main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE, speckle_num=speckle_num, model=model)
+        main(speckle_num=speckle_num, model=model, mask_patterns=MASK_PATTERNS, image_data=IMAGE, device=DEVICE)
+        # print(MASK_PATTERNS)
+        # print(IMAGE.shape)
