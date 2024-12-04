@@ -25,7 +25,7 @@ LOSS_SELECT = "l1_tv"
 alpha = 0.0
 beta = 0.0
 size = 256
-EPOCHS = 20000
+EPOCHS = 30000
 LEARNING_RATE = 1e-4
 # USE_DATA = "mnist_0"
 USE_DATA = "cameraman"
@@ -138,7 +138,7 @@ def calculate_mse(image1, image2):
 
 # 画像を比較して MSE と SSIM を表示する関数
 def display_comparison_with_metrics(
-    X_original, X_reconstructed, save_dir=f"{PATH}/data/results", ratio=1
+    X_original, X_reconstructed, speckle_num, model_name, save_dir=f"{PATH}/data/results", ratio=1
 ):
     # MSE 計算
     X_original = X_original.flatten()
@@ -186,6 +186,7 @@ def display_comparison_with_metrics(
 
 def main(speckle_num, model, mask_patterns, image_data=IMAGE, device=DEVICE):
     COMPRESSIVE_RATIO = speckle_num / size**2
+    model_name = model.__class__.__name__
     image_data = torch.tensor(image_data)
     image_data = image_data.to(device)
     mask_patterns = torch.tensor(mask_patterns) / np.max(mask_patterns)
@@ -227,11 +228,13 @@ def main(speckle_num, model, mask_patterns, image_data=IMAGE, device=DEVICE):
         X_original = image_data.cpu().numpy()  # 元の画像XをNumPy配列に変換
     # 再構成画像の表示
     display_comparison_with_metrics(
-        X_original=X_original, X_reconstructed=X_reconstructed, ratio=COMPRESSIVE_RATIO
+        X_original=X_original, X_reconstructed=X_reconstructed, speckle_num=speckle_num, model_name=model_name, ratio=COMPRESSIVE_RATIO
     )
 
 
 if __name__ == "__main__":
+    print("EPOCHS:", EPOCHS)
+    print("Learning rate:", LEARNING_RATE)
     for speckle_num in speckle_num_list:
         print(f"Processing speckle_num: {speckle_num}")
         # COMPRESSIVE_RATIO = speckle_num / size**2
