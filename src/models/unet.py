@@ -547,6 +547,96 @@ class DeepMultiscaleSpeckleNet(nn.Module):
         activated_out = self.activation(out)
         return activated_out
 
+class shal_1_DeepMultiscaleSpeckleNet(nn.Module):
+    def __init__(self, outdim):
+        super(shal_1_DeepMultiscaleSpeckleNet, self).__init__()
+
+        # Encoder
+        self.down1 = self.down_sample(1, 64)
+        self.down2 = self.down_sample(64, 128)
+        self.down3 = self.down_sample(128, 256)
+
+        # Decoder
+        self.up3 = self.up_sample(256, 128)
+        self.up2 = self.up_sample(256, 64)
+        self.up1 = self.up_sample(128, 32)
+        self.up0 = self.up_sample(32, 1)
+        self.activation = nn.Sigmoid()
+        # self.activation = BinaryActivation()
+        # self.activation = BinarySTEActivation()
+        # self.activation = SmoothBinaryActivation()
+
+        # グローバルプーリングを追加
+        self.global_pool = nn.AdaptiveMaxPool1d(8192)  # 出力サイズを1に固定
+
+        # Final fully connected layers
+        self.fc = nn.Sequential(
+            nn.Linear(8192, 1024),  # 入力次元を16に変更
+            # nn.LeakyReLU(0.2),
+            nn.PReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(1024, 1024),  # 入力次元を16に変更
+            # nn.LeakyReLU(0.2),
+            nn.PReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(1024, outdim),
+            # nn.Sigmoid(),
+        )
+
+    def down_sample(self, in_channels, out_channels):
+        return nn.Sequential(
+            nn.Conv1d(in_channels, out_channels, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm1d(out_channels),
+            # nn.ReLU(inplace=True),
+            nn.PReLU(),
+            nn.Dropout(0.1),
+        )
+
+    def up_sample(self, in_channels, out_channels):
+        return nn.Sequential(
+            nn.ConvTranspose1d(
+                in_channels, out_channels, kernel_size=4, stride=2, padding=1
+            ),
+            nn.BatchNorm1d(out_channels),
+            # nn.ReLU(inplace=True),
+            nn.PReLU(),
+            nn.Dropout(0.1),
+        )
+
+    def forward(self, x):
+        # batch_size=1(1枚分だから)
+        # x shape: (batch_size, 65536)
+        x = x.unsqueeze(1)  # (batch_size, 1, 65536)
+        # print("input dimension: ", x.shape)
+        # Encoder
+        d1 = self.down1(x)  # (batch_size, 32, 32768)
+        # print("d1 shape:", d1.shape)
+        d2 = self.down2(d1)  # (batch_size, 64, 16384)
+        # print("d2 shape:", d2.shape)
+        d3 = self.down3(d2)  # (batch_size, 128, 8192)
+        # print("d3 shape:", d3.shape)
+
+        # Decoder
+        u3 = self.up3(d3)  # (batch_size, 64, 16384)
+        # print("u3 shape:", u3.shape)
+        # 入力サイズに応じてトリミング
+        u3 = torch.cat([u3[:, :, : d2.size(2)], d2], dim=1)  # (batch_size, 128, 125)
+        # print("u3(after concated with d2) shape:", u3.shape)
+        u2 = self.up2(u3)  # (batch_size, 32, 32768)
+        # print("u2 shape:", u2.shape)
+        u2 = torch.cat([u2, d1], dim=1)  # (batch_size, 64, 250)
+        # print("u2(after concated with d1) shape:", u2.shape)
+        u1 = self.up1(u2)  # (batch_size, 16, 500) ※入力サイズに応じて変更されます
+        # print("u1 shape:", u1.shape)
+        u0 = self.up0(u1)
+        # print("u0 shape:", u0.shape)
+        # グローバルプーリングで固定サイズに
+        pooled = self.global_pool(u0).squeeze(-1)  # (batch_size, 16)
+        # print("pooled shape:", pooled.shape)
+        # Flatten and pass through fully connected layers
+        out = self.fc(pooled)  # (batch_size, 64)
+        activated_out = self.activation(out)
+        return activated_out
 
 class NewDeepMultiscaleSpeckleNet(nn.Module):
     def __init__(self, outdim):

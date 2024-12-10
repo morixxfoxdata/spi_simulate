@@ -10,7 +10,7 @@ from skimage.metrics import structural_similarity as ssim
 # from models.unet import NewMultiscaleSpeckleNet
 # from models.unet import MultiscaleSpeckleNet
 from models.autoencoder import Autoencoder
-from models.unet import SimpleNet, TwoLayerNet, LargeNet, NewMultiscaleSpeckleNet, ModifiedMultiscaleSpeckleNet, DeepMultiscaleSpeckleNet, NewDeepMultiscaleSpeckleNet
+from models.unet import shal_1_DeepMultiscaleSpeckleNet, NewMultiscaleSpeckleNet, ModifiedMultiscaleSpeckleNet, DeepMultiscaleSpeckleNet, NewDeepMultiscaleSpeckleNet
 
 PATH = "/home1/komori/spi_simulate"
 # PATH = "/Users/komori/Desktop/spi_simulate"
@@ -25,7 +25,7 @@ LOSS_SELECT = "l1_tv"
 alpha = 0.0
 beta = 0.0
 size = 256
-EPOCHS = 30000
+EPOCHS = 40000
 LEARNING_RATE = 1e-4
 # USE_DATA = "mnist_0"
 USE_DATA = "cameraman"
@@ -248,9 +248,10 @@ if __name__ == "__main__":
         else:
             MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
             "arr_0"].astype(np.float32)
-        model = Autoencoder(
-        input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
-        ).to(DEVICE)
+        # model = Autoencoder(
+        # input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
+        # ).to(DEVICE)
+        model = shal_1_DeepMultiscaleSpeckleNet(outdim=65536).to(DEVICE)
         model_name = model.__class__.__name__
         # main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE, speckle_num=speckle_num, model=model)
         main(speckle_num=speckle_num, model=model, mask_patterns=MASK_PATTERNS, image_data=IMAGE, device=DEVICE)
