@@ -248,7 +248,9 @@ if __name__ == "__main__":
         else:
             MASK_PATTERNS = np.load(f"{PATH}/data/speckle/time{speckle_num}_{size}x{size}.npz")[
             "arr_0"].astype(np.float32)
-        model = DeepMultiscaleSpeckleNet(outdim=size ** 2).to(DEVICE)
+        model = Autoencoder(
+        input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
+        ).to(DEVICE)
         model_name = model.__class__.__name__
         # main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE, speckle_num=speckle_num, model=model)
         main(speckle_num=speckle_num, model=model, mask_patterns=MASK_PATTERNS, image_data=IMAGE, device=DEVICE)
