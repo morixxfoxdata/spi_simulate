@@ -9,6 +9,9 @@ PATH = "/home1/komori/spi_simulate"
 def calculate_mse(image1, image2):
     # image1 = image1.flatten()
     return np.mean((image1 - image2) ** 2)
+
+
+
 # 画像を比較して MSE と SSIM を表示する関数
 def display_comparison_with_metrics(
     X_original, X_reconstructed, speckle_num, size, USE_DATA, LOSS_SELECT, EPOCHS, LEARNING_RATE, model_name, save_dir=f"{PATH}/data/results", ratio=1
