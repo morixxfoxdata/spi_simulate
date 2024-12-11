@@ -7,6 +7,7 @@ import torch
 import torch.optim as optim
 from skimage.metrics import structural_similarity as ssim
 from utils.loss_fun import custom_loss, l1_custom_loss, l1_tv_custom_loss, tv_custom_loss
+from utils.metrics import display_comparison_with_metrics
 # from models.unet import NewMultiscaleSpeckleNet
 # from models.unet import MultiscaleSpeckleNet
 from models.autoencoder import Autoencoder
@@ -25,7 +26,7 @@ LOSS_SELECT = "l1_tv"
 alpha = 0.0
 beta = 0.0
 size = 256
-EPOCHS = 40000
+EPOCHS = 100
 LEARNING_RATE = 1e-4
 # USE_DATA = "mnist_0"
 USE_DATA = "cameraman"
@@ -92,51 +93,51 @@ def calculate_mse(image1, image2):
 
 
 # 画像を比較して MSE と SSIM を表示する関数
-def display_comparison_with_metrics(
-    X_original, X_reconstructed, speckle_num, model_name, save_dir=f"{PATH}/data/results", ratio=1
-):
-    # MSE 計算
-    X_original = X_original.flatten()
-    mse_value = calculate_mse(X_original, X_reconstructed)
+# def display_comparison_with_metrics(
+#     X_original, X_reconstructed, speckle_num, model_name, save_dir=f"{PATH}/data/results", ratio=1
+# ):
+#     # MSE 計算
+#     X_original = X_original.flatten()
+#     mse_value = calculate_mse(X_original, X_reconstructed)
 
-    # SSIM 計算
-    ssim_value, _ = ssim(
-        X_original,
-        X_reconstructed,
-        data_range=X_original.max() - X_original.min(),
-        full=True,
-    )
+#     # SSIM 計算
+#     ssim_value, _ = ssim(
+#         X_original,
+#         X_reconstructed,
+#         data_range=X_original.max() - X_original.min(),
+#         full=True,
+#     )
 
-    # 画像の表示
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+#     # 画像の表示
+#     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
-    # X_original の表示
-    axes[0].imshow(X_original.reshape(size, size), cmap="gray")
-    axes[0].set_title("Original")
-    axes[0].axis("off")
+#     # X_original の表示
+#     axes[0].imshow(X_original.reshape(size, size), cmap="gray")
+#     axes[0].set_title("Original")
+#     axes[0].axis("off")
 
-    # X_reconstructed の表示
-    axes[1].imshow(X_reconstructed.reshape(size, size), cmap="gray")
-    axes[1].set_title("Reconstructed")
-    axes[1].axis("off")
+#     # X_reconstructed の表示
+#     axes[1].imshow(X_reconstructed.reshape(size, size), cmap="gray")
+#     axes[1].set_title("Reconstructed")
+#     axes[1].axis("off")
 
-    # MSE と SSIM を表示
-    plt.suptitle(
-        f"RATIO: {ratio:.4f}, MSE: {mse_value:.6f}, SSIM: {ssim_value:.6f}",
-        fontsize=14,
-    )
-    plt.tight_layout()
-    # ディレクトリが存在しない場合は作成
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-    # 画像を保存
-    save_path = os.path.join(
-        save_dir,
-        f"{model_name}/{size}{USE_DATA}_sp{speckle_num}_{LOSS_SELECT}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
-    )
-    plt.savefig(save_path)
-    print(f"Comparison plot saved to {save_path}")
-    # plt.show()
+#     # MSE と SSIM を表示
+#     plt.suptitle(
+#         f"RATIO: {ratio:.4f}, MSE: {mse_value:.6f}, SSIM: {ssim_value:.6f}",
+#         fontsize=14,
+#     )
+#     plt.tight_layout()
+#     # ディレクトリが存在しない場合は作成
+#     if not os.path.exists(save_dir):
+#         os.makedirs(save_dir)
+#     # 画像を保存
+#     save_path = os.path.join(
+#         save_dir,
+#         f"{model_name}/{size}{USE_DATA}_sp{speckle_num}_{LOSS_SELECT}_{model_name}_ep{EPOCHS}_{LEARNING_RATE}.png",
+#     )
+#     plt.savefig(save_path)
+#     print(f"Comparison plot saved to {save_path}")
+#     # plt.show()
 
 
 def main(speckle_num, model, mask_patterns, image_data=IMAGE, device=DEVICE):
@@ -183,7 +184,9 @@ def main(speckle_num, model, mask_patterns, image_data=IMAGE, device=DEVICE):
         X_original = image_data.cpu().numpy()  # 元の画像XをNumPy配列に変換
     # 再構成画像の表示
     display_comparison_with_metrics(
-        X_original=X_original, X_reconstructed=X_reconstructed, speckle_num=speckle_num, model_name=model_name, ratio=COMPRESSIVE_RATIO
+        X_original=X_original, X_reconstructed=X_reconstructed, speckle_num=speckle_num, 
+        size=size, USE_DATA=USE_DATA, LOSS_SELECT=LOSS_SELECT, EPOCHS=EPOCHS, LEARNING_RATE=LEARNING_RATE,
+        model_name=model_name, ratio=COMPRESSIVE_RATIO
     )
 
 
