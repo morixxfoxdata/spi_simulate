@@ -3,6 +3,21 @@ import logging
 import os
 path = "data/processed/mnist/"
 
+def speckle_reshape(width):
+    mask = np.load(f"/home1/komori/spi_simulate/data/speckle/time{width**2}_{width}x{width}.npz")["mask_patterns_normalized"]
+    # mask_shape: (65536, 256, 256)
+    # decreasing_list = list(range(65536, 0, -1024))
+    for i in range(64512, 0, -1024):
+        print("size:", i)
+        step = mask.shape[0] / i
+        indices = np.arange(0, mask.shape[0], step)
+        sampled_mask = mask[indices.astype(int)]
+        print("sampled_shape:", sampled_mask.shape)
+        # factor = mask.shape[0] // i
+        # sampled_mask = mask[::factor]
+        np.savez(f"/home1/komori/spi_simulate/data/speckle/time{i}_{width}x{width}.npz", sampled_mask)
+
+
 
 def npz_data_mnist(num):
     data_all = np.load("data/raw/class10_image10x1000.npz")["arr_0"]
@@ -107,8 +122,9 @@ def combine_npz_chunks(input_dir, output_file, prefix='time65536_256x256_chunk',
 
 
 if __name__ == "__main__":
+    speckle_reshape(256)
     # npz_data_mnist(0)
-    divide_mask(256)
+    # divide_mask(256)
     # npz_create()
         # ログの設定
     # logging.basicConfig(
