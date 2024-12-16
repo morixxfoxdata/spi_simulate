@@ -127,6 +127,7 @@ def main(speckle_num, model, mask_patterns, image_data=IMAGE, device=DEVICE):
             model(Y).squeeze().cpu().numpy()
         )  # Yから再構成画像X'を生成し、NumPy配列に変換
         X_original = image_data.cpu().numpy()  # 元の画像XをNumPy配列に変換
+        print(X_reconstructed.shape)
     # 再構成画像の表示
     display_comparison_with_metrics(
         X_original=X_original, X_reconstructed=X_reconstructed, speckle_num=speckle_num, 
