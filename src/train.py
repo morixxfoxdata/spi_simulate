@@ -19,14 +19,14 @@ PATH = "/home1/komori/spi_simulate"
 # ====================
 # numpy data loaded
 # ====================
-speckle_num_list = [16384, 32768, 49152, 65536]
+speckle_num_list = [65536]
 LOSS_SELECT = "l1_tv"
 # 正則化しない場合でもlambda_regを0に設定する
 # lambda_reg = 0.00001
 alpha = 0.0
 beta = 0.0
 size = 256
-EPOCHS = 100
+EPOCHS = 2000
 LEARNING_RATE = 1e-4
 # USE_DATA = "mnist_0"
 USE_DATA = "cameraman"
@@ -155,7 +155,8 @@ if __name__ == "__main__":
         # model = Autoencoder(
         # input_dim=speckle_num, hidden_dim=speckle_num // 256, bottleneck_dim=256, output_dim=size**2
         # ).to(DEVICE)
-        model = shal_1_DeepMultiscaleSpeckleNet(outdim=65536).to(DEVICE)
+        # model = shal_1_DeepMultiscaleSpeckleNet(outdim=65536).to(DEVICE)
+        model = DeepMultiscaleSpeckleNet(outdim=65536).to(DEVICE)
         model_name = model.__class__.__name__
         # main(device=DEVICE, mask_patterns=MASK_PATTERNS, image_data=IMAGE, speckle_num=speckle_num, model=model)
         main(speckle_num=speckle_num, model=model, mask_patterns=MASK_PATTERNS, image_data=IMAGE, device=DEVICE)
